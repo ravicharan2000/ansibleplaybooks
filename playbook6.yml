@@ -18,7 +18,7 @@
     - name: change port of tomcat from 8080 to 9090
       replace:
         regexp: 8080
-        replace: 9090
+        replace: 7070
         path: /etc/tomcat10/server.xml
     - name: restart tomcat
       service: 
@@ -29,11 +29,11 @@
         minutes: 1
     - name: check tomcat response on server1
       uri:
-        url: http://172.31.1.23:9090
+        url: http://172.31.1.23:7070
         status_code: 200
     - name: check tomcat response on server2
       uri: 
-        url: http://172.31.8.237:9090
+        url: http://172.31.8.237:7070
         status_code: 200
 
 
