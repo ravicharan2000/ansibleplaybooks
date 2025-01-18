@@ -1,0 +1,9 @@
+---
+- name: Call multiple playbooks for user creation and file/dir creation
+  hosts: all
+  tasks: 
+    - name: Call child playbook for user creation
+      include_tasks: playbook32.yml
+    - name: Call child playbook for file/dir creation
+      include_tasks: playbook33.yml
+...
