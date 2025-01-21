@@ -13,6 +13,7 @@
       file:
         name: /tmp/file100
         state: absent
-      when: results.stat.size == 0
+      when: 
+        - results.stat.size == 0
 
 ...
