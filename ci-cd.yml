@@ -1,0 +1,76 @@
+---
+- name: Install required s/w's on devserver
+  hosts: devserver
+  tasks: 
+    - name: Install required s/w's
+      apt: 
+        name: "{{item.a}}"
+        state: "{{item.b}}"
+        update_cache: "{{item.c}}"
+      with_items: 
+        - {a: openjdk-17-jdk,b: present,c: yes}
+        - {a: git,b: present,c: no}
+        - {a: maven,b: present,c: no}
+- name: Install required s/w's on the qaserver
+  hosts: qaserver
+  tasks: 
+    - name: Install required s/w's
+      apt: 
+        name: "{{item.a}}"
+        state: "{{item.b}}"
+        update_cache: "{{item.c}}"
+      with_items: 
+        - {a: openjdk-17-jdk,b: present,c: yes} 
+        - {a: git,b: present,c: no}
+        - {a: tomcat10,b: present,c: no}
+        - {a: tomcat10-admin,b: present,c: no}
+- name: Install required s/w's on prodserver
+  hosts: prodserver
+  tasks: 
+    - name: Install required s/w's
+      apt:
+        name: "{{item.a}}"
+        state: "{{item.b}}"
+        update_cache: "{{item.c}}"
+      with_items:
+        - {a: tomcat10,b: present,c: no}
+        - {a: tomcat10-admin,b: present,c: no}
+- name: Continuouns Download and Continuouns Build
+  hosts: devserver
+  tasks: 
+    - name: Download the development code from github
+      git: 
+        repo: https://github.com/ravicharan2000/jenkins7.git
+        dest: dev-git
+    - name: Create artifact from the code
+      shell: cd dev-git;mvn package
+    - name: Fetch the artifact to the controller
+      fetch: 
+        src: dev-git/webapp/target/webapp.war
+        dest: /tmp
+- name: Continuouns Deployment and continuouns Testing
+  hosts: qaserver
+  tasks: 
+    - name: Deploy artifact to tomcat on qa server
+      copy: 
+        src: /tmp/172.31.15.116/dev-git/webapp/target/webapp.war
+        dest:  /var/lib/tomcat10/webapps/testapp.war
+    - name: Download the selenium scripts
+      git: 
+        repo: https://github.com/ravicharan2000/FunctionalTesting.git
+        dest: test-git
+    - name: run the selenium scripts
+      shell: java -jar test-git/testing.jar
+- name: Continuouns Delivery
+  hosts: prodserver
+  tasks: 
+    - name: Deploy artifact to tomcat on prodserver
+      copy:  
+        src: /tmp/172.31.15.116/dev-git/webapp/target/webapp.war
+        dest:  /var/lib/tomcat10/webapps/prodapp.war
+
+
+
+
+
+...
